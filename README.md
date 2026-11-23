@@ -1,4 +1,4 @@
-# [App Name] — Iloilo Offline Travel Companion
+# TARAILO — Iloilo Offline Travel Companion
 
 An offline-first mobile app for visitors to Iloilo City and province. It helps tourists find landmarks, speak basic Hiligaynon, identify local food and places with the camera, plan trips, and stay informed about events and road closures, even with weak or costly mobile data.
 
@@ -149,10 +149,3 @@ This is a build order, not a feature list.
 
 ---
 
-## Open Items
-
-- [ ] Conduct interviews and gather suggestions
-- [ ] Confirm with the adviser that the Account module counts as a feature
-- [ ] Decide the exact chat limits
-- [ ] Choose map tile format (MBTiles or vector tiles)
-- [ ] Finalize the app name
