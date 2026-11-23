@@ -1,30 +1,36 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:iloilo_tourist_app/app/app.dart';
+import 'package:iloilo_tourist_app/app/providers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:iloilo_tourist_app/main.dart';
-
+/// Smoke test for the navigation skeleton: a returning guest who already
+/// finished onboarding lands on Home and can switch tabs.
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Splash routes a returning guest to Home tabs', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      PrefKeys.onboardingDone: true,
+      PrefKeys.isGuest: true,
+    });
+    final prefs = await SharedPreferences.getInstance();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          isOnlineProvider.overrideWith((ref) => Stream.value(true)),
+        ],
+        child: const TaraIloApp(),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Wait for the splash check to finish.
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(find.text('Tara, Iloilo!'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.text('Dining'));
+    await tester.pumpAndSettle();
+    expect(find.text('S9'), findsOneWidget);
   });
 }

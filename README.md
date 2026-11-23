@@ -149,3 +149,55 @@ This is a build order, not a feature list.
 
 ---
 
+
+## Developer Guide (Flutter skeleton)
+
+### Run the app
+1. Install Flutter (stable, Dart 3.13+). On Windows, turn on **Developer Mode** (plugins need symlinks).
+2. `flutter pub get`
+3. Copy `.env.example` to `.env` and fill in the Supabase URL + anon key (optional; without it the app runs with cloud features off).
+4. `flutter run --dart-define-from-file=.env` (or pick a config in `.vscode/launch.json`).
+5. `flutter analyze` and `flutter test` must pass before opening a PR.
+
+Never commit `.env`. Gemini, Contentful and Apify keys live only in Supabase secrets.
+
+### Navigation map
+Entry: `/splash` (S1) → `/onboarding` (S2, first run) → `/login` (S3) → tabs. The redirect logic lives in `lib/app/router.dart` (`_redirect`).
+
+| Tab | Root | Child routes |
+|---|---|---|
+| Home | `/home` S4 | `/home/recommendations` S5, `/home/saved` S7, `/home/profile` S8 |
+| Dining | `/dining` S9 | `/dining/dish/:id` S10, `/dining/restaurant/:id` S11 |
+| Map | `/map` S14 | `/map/landmark/:id` S15, `/map/places-passed` S16, `/map/route/:id` S17 |
+| Language | `/language` S18 | `/language/phrase/:id` S19, `/language/phrase/:id/show` (show mode) |
+| Events | `/events` S20 | `/events/:id` S21 |
+
+Full screen (any tab): `/chat` S6 (Ask Guide button), `/scan?mode=dish|landmark` S12, `/scan/result` S13.
+Admin (role-guarded): `/admin` A1, `/admin/content` A2, `/admin/events` A3, `/admin/restaurants` A4, `/admin/users` A5.
+In debug builds, Profile has a **"Dev: act as admin"** switch so you can open the admin screens before roles exist.
+
+Always navigate with the helpers in `lib/app/routes.dart`, e.g. `context.push(AppRoutes.dish(id))`.
+
+### Folder structure
+```
+lib/
+  main.dart              entry point (Supabase init, SharedPreferences, ProviderScope)
+  app/                   app.dart, router.dart, routes.dart, theme.dart, providers.dart
+  core/                  env, constants, errors, utils (haversine)
+  data/local|remote|sync drift DB, Supabase services, sync + outbox
+  models/                shared data classes
+  features/<feature>/    screens/ widgets/ controllers/
+  widgets/               app_shell, connectivity_banner, state_views, feature_placeholder
+assets/                  images, seed json, faq (bundled FAQ for the offline chatbot)
+supabase/                migrations/, functions/
+contentful/              exported content model
+```
+
+### How to build your feature
+1. Branch from `main` into your `<SURNAME>-features` branch.
+2. Work only inside `lib/features/<your feature>/` where possible. Replace the `FeaturePlaceholder` in your screen with the real UI.
+3. Every screen that loads data uses `LoadingView` / `EmptyView` / `ErrorView` or `AsyncValueView` from `lib/widgets/state_views.dart`.
+4. Changes to shared files (`lib/app/`, `lib/widgets/`, `pubspec.yaml`) should be small and called out in your PR.
+5. Comment each significant class/function, and log AI-generated code in the AI Usage Log.
+
+> Theme note: `lib/app/theme.dart` uses placeholder tokens until the Figma colors and typography are applied.
