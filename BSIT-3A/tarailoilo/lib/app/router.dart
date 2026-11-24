@@ -18,9 +18,7 @@ import '../features/events/screens/events_calendar_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/home/screens/recommendations_screen.dart';
 import '../features/home/screens/saved_screen.dart';
-import '../features/language/screens/phrase_detail_screen.dart';
 import '../features/language/screens/phrase_show_mode_screen.dart';
-import '../features/language/screens/phrasebook_screen.dart';
 import '../features/map/screens/explore_map_screen.dart';
 import '../features/map/screens/landmark_detail_screen.dart';
 import '../features/map/screens/places_passed_screen.dart';
@@ -30,6 +28,8 @@ import '../features/onboarding/screens/splash_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/scan/screens/scan_camera_screen.dart';
 import '../features/scan/screens/scan_result_screen.dart';
+import '../screens/language_screen.dart';
+import '../screens/phrase_detail_screen.dart';
 import '../widgets/app_shell.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -159,12 +159,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.language,
-                builder: (context, state) => const PhrasebookScreen(),
+                builder: (context, state) => const LanguageScreen(),
                 routes: [
                   GoRoute(
                     path: 'phrase/:id',
-                    builder: (context, state) =>
-                        PhraseDetailScreen(phraseId: state.pathParameters['id']!),
+                    builder: (context, state) => PhraseDetailScreen(
+                      phraseId: state.pathParameters['id']!,
+                    ),
                     routes: [
                       // Full screen, no bottom bar: uses the root navigator.
                       GoRoute(
@@ -262,7 +263,9 @@ String? _redirect(AppSession session, GoRouterState state) {
   if (!session.splashDone) return atSplash ? null : AppRoutes.splash;
 
   // S2 only on the first run.
-  if (!session.onboardingDone) return atOnboarding ? null : AppRoutes.onboarding;
+  if (!session.onboardingDone) {
+    return atOnboarding ? null : AppRoutes.onboarding;
+  }
 
   // S3 until the user signs in or chooses guest mode.
   if (!session.canEnterApp) return atLogin ? null : AppRoutes.login;
