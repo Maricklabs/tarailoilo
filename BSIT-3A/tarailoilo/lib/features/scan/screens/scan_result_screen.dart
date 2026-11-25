@@ -30,7 +30,10 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
     final g = _selected;
     final id = g?.id;
     if (g == null || id == null) return;
-    context.push(g.mode == ScanMode.dish ? AppRoutes.dish(id) : AppRoutes.landmark(id));
+    // go, not push: dish/landmark pages live inside the tab shell, and the scan
+    // screens sit on the root navigator above it. Pushing would add the shell a
+    // second time (duplicate page key). go() closes the scan screens instead.
+    context.go(g.mode == ScanMode.dish ? AppRoutes.dish(id) : AppRoutes.landmark(id));
   }
 
   void _searchManually() => context.go(AppRoutes.dining);
