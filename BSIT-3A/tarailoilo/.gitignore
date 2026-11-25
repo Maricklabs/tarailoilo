@@ -46,9 +46,3 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
-
-# Local secrets (public Supabase URL/anon key only)
-.env
-!.env.example
-supabase/.temp/
-supabase/functions/.env
