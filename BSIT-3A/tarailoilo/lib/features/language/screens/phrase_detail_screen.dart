@@ -6,6 +6,7 @@ import '../../../app/routes.dart';
 import '../../../widgets/state_views.dart';
 import '../controllers/phrasebook_provider.dart';
 import '../data/phrase_catalog.dart';
+import '../widgets/phrase_audio_button.dart';
 
 /// S19 Phrase.
 ///
@@ -78,7 +79,10 @@ class PhraseDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 24),
                           ListTile(
                             contentPadding: EdgeInsets.zero,
-                            leading: Icon(Icons.volume_up_outlined),
+                            leading: PhraseAudioButton(
+                              audioUrl: phrase.audioUrl,
+                              compact: true,
+                            ),
                             title: Text('Local-speaker recording'),
                             subtitle: Text(
                               phrase.audioUrl == null

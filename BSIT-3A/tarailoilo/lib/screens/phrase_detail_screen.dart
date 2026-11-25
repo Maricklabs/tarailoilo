@@ -6,6 +6,7 @@ import '../app/routes.dart';
 import '../features/language/controllers/phrasebook_provider.dart';
 import '../features/language/data/phrase_catalog.dart';
 import '../features/language/data/phrasebook_repository.dart';
+import '../features/language/widgets/phrase_audio_button.dart';
 import '../widgets/state_views.dart';
 
 class PhraseDetailScreen extends ConsumerWidget {
@@ -233,14 +234,6 @@ class PhraseDetailScreen extends ConsumerWidget {
 
                           Row(
                             children: [
-                              const Icon(
-                                Icons.volume_up_outlined,
-                                color: primary,
-                                size: 18,
-                              ),
-
-                              const SizedBox(width: 8),
-
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,6 +258,10 @@ class PhraseDetailScreen extends ConsumerWidget {
                                     ),
                                   ],
                                 ),
+                              ),
+                              PhraseAudioButton(
+                                audioUrl: phrase.audioUrl,
+                                compact: true,
                               ),
                             ],
                           ),

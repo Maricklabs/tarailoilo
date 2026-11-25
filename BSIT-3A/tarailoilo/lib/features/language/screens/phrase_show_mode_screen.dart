@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/language/controllers/phrasebook_provider.dart';
 import '../data/phrase_catalog.dart';
 import '../data/phrasebook_repository.dart';
+import '../widgets/phrase_audio_button.dart';
 import '../../../widgets/state_views.dart';
 
 /// S19 "Show to the other person" mode.
@@ -217,12 +218,6 @@ class PhraseShowModeScreen extends ConsumerWidget {
                                 const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    Icon(
-                                      Icons.volume_up_outlined,
-                                      color: primary,
-                                      size: 18,
-                                    ),
-                                    SizedBox(width: 8),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -248,6 +243,10 @@ class PhraseShowModeScreen extends ConsumerWidget {
                                           ),
                                         ],
                                       ),
+                                    ),
+                                    PhraseAudioButton(
+                                      audioUrl: phrase.audioUrl,
+                                      compact: true,
                                     ),
                                   ],
                                 ),
