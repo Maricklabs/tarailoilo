@@ -1,21 +1,21 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../features/language/controllers/phrasebook_provider.dart';
-import '../data/phrase_catalog.dart';
-import '../data/phrasebook_repository.dart';
-import '../widgets/phrase_audio_button.dart';
-import '../../../widgets/state_views.dart';
+import 'package:iloilo_tourist_app/features/language/controllers/phrasebook_provider.dart';
+import 'package:iloilo_tourist_app/features/language/data/phrase_catalog.dart';
+import 'package:iloilo_tourist_app/features/language/data/phrasebook_repository.dart';
+import 'package:iloilo_tourist_app/features/language/widgets/phrase_audio_player.dart';
+import 'package:iloilo_tourist_app/widgets/state_views.dart';
 
 /// S19 "Show to the other person" mode.
 ///
-/// Full screen (no bottom bar), very large Hiligaynon text so a tourist can
-/// show it to a local.
-///
-/// TODO(language owner): load the phrase from drift and keep the screen
-/// awake with wakelock_plus while this page is open.
+/// Full screen with large Hiligaynon text and local-speaker audio playback.
 class PhraseShowModeScreen extends ConsumerWidget {
-  const PhraseShowModeScreen({super.key, required this.phraseId});
+  const PhraseShowModeScreen({
+    super.key,
+    required this.phraseId,
+  });
 
   final String phraseId;
 
@@ -26,30 +26,36 @@ class PhraseShowModeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(phrasebookProvider)
-        .when(
-          loading: () => const Scaffold(body: LoadingView()),
-          error: (error, _) => Scaffold(
-            body: ErrorView(
-              message: 'Could not load the phrasebook.\n$error',
-              onRetry: () => ref.invalidate(phrasebookProvider),
-            ),
-          ),
-          data: (snapshot) => _buildShowMode(context, snapshot),
-        );
+    return ref.watch(phrasebookProvider).when(
+      loading: () => const Scaffold(
+        body: LoadingView(),
+      ),
+      error: (error, _) => Scaffold(
+        body: ErrorView(
+          message: 'Could not load the phrasebook.\n$error',
+          onRetry: () => ref.invalidate(phrasebookProvider),
+        ),
+      ),
+      data: (snapshot) => _buildShowMode(context, snapshot),
+    );
   }
 
-  Widget _buildShowMode(BuildContext context, PhrasebookSnapshot snapshot) {
+  Widget _buildShowMode(
+    BuildContext context,
+    PhrasebookSnapshot snapshot,
+  ) {
     final phrase = findPhraseById(phraseId, snapshot.phrases);
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: phrase == null
-            ? const Center(child: Text('This phrase is not available.'))
+            ? const Center(
+                child: Text('This phrase is not available.'),
+              )
             : Column(
                 children: [
+                  // HEADER
                   Container(
                     width: double.infinity,
                     color: lightPink,
@@ -96,12 +102,15 @@ class PhraseShowModeScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+
+                  // PHRASE CONTENT
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.fromLTRB(15, 12, 15, 15),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // DISPLAY LABELS
                           Row(
                             children: [
                               Container(
@@ -143,15 +152,23 @@ class PhraseShowModeScreen extends ConsumerWidget {
                                 ),
                                 child: const Text(
                                   'Offline text',
-                                  style: TextStyle(color: primary, fontSize: 9),
+                                  style: TextStyle(
+                                    color: primary,
+                                    fontSize: 9,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
+
                           const SizedBox(height: 12),
+
+                          // LARGE PHRASE CARD
                           Container(
                             width: double.infinity,
-                            constraints: const BoxConstraints(minHeight: 220),
+                            constraints: const BoxConstraints(
+                              minHeight: 220,
+                            ),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: lightPink,
@@ -187,7 +204,10 @@ class PhraseShowModeScreen extends ConsumerWidget {
                               ],
                             ),
                           ),
+
                           const SizedBox(height: 10),
+
+                          // PRONUNCIATION AND AUDIO
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
@@ -203,7 +223,7 @@ class PhraseShowModeScreen extends ConsumerWidget {
                                   'Pronunciation help',
                                   style: TextStyle(
                                     color: primary,
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -212,48 +232,23 @@ class PhraseShowModeScreen extends ConsumerWidget {
                                   phrase.pronunciation,
                                   style: const TextStyle(
                                     color: textColor,
-                                    fontSize: 12,
+                                    fontSize: 13,
                                   ),
                                 ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            'Real local-speaker audio',
-                                            style: TextStyle(
-                                              color: primary,
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 3),
-                                          Text(
-                                            phrase.audioUrl == null
-                                                ? 'Recording pending - not yet playable'
-                                                : 'Recording available',
-                                            style: TextStyle(
-                                              color: textColor,
-                                              fontSize: 9,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    PhraseAudioButton(
-                                      audioUrl: phrase.audioUrl,
-                                      compact: true,
-                                    ),
-                                  ],
+                                const SizedBox(height: 14),
+
+                                // CONTENTFUL AUDIO PLAYER
+                                PhraseAudioPlayer(
+                                  key: ValueKey('show-audio-${phrase.id}',),
+                                  audioUrl: phrase.audioUrl,
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 10),
+
+                          const SizedBox(height: 12),
+
+                          // EXIT BUTTON
                           SizedBox(
                             width: double.infinity,
                             child: TextButton(

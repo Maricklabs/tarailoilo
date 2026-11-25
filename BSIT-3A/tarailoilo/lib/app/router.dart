@@ -19,6 +19,8 @@ import '../features/home/screens/home_screen.dart';
 import '../features/home/screens/recommendations_screen.dart';
 import '../features/home/screens/saved_screen.dart';
 import '../features/language/screens/phrase_show_mode_screen.dart';
+import '../features/language/screens/phrase_detail_screen.dart';
+import '../features/language/screens/phrasebook_screen.dart';
 import '../features/map/screens/explore_map_screen.dart';
 import '../features/map/screens/landmark_detail_screen.dart';
 import '../features/map/screens/places_passed_screen.dart';
@@ -28,8 +30,6 @@ import '../features/onboarding/screens/splash_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/scan/screens/scan_camera_screen.dart';
 import '../features/scan/screens/scan_result_screen.dart';
-import '../screens/language_screen.dart';
-import '../screens/phrase_detail_screen.dart';
 import '../widgets/app_shell.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -159,7 +159,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.language,
-                builder: (context, state) => const LanguageScreen(),
+                builder: (context, state) => const PhrasebookScreen(),
                 routes: [
                   GoRoute(
                     path: 'phrase/:id',
