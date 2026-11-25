@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../features/language/controllers/phrasebook_provider.dart';
 import '../data/phrase_catalog.dart';
+import '../data/phrasebook_repository.dart';
+import '../../../widgets/state_views.dart';
 
 /// S19 "Show to the other person" mode.
 ///
@@ -9,7 +13,7 @@ import '../data/phrase_catalog.dart';
 ///
 /// TODO(language owner): load the phrase from drift and keep the screen
 /// awake with wakelock_plus while this page is open.
-class PhraseShowModeScreen extends StatelessWidget {
+class PhraseShowModeScreen extends ConsumerWidget {
   const PhraseShowModeScreen({super.key, required this.phraseId});
 
   final String phraseId;
@@ -20,8 +24,23 @@ class PhraseShowModeScreen extends StatelessWidget {
   static const Color textColor = Color(0xFF765E70);
 
   @override
-  Widget build(BuildContext context) {
-    final phrase = findPhraseById(phraseId);
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(phrasebookProvider)
+        .when(
+          loading: () => const Scaffold(body: LoadingView()),
+          error: (error, _) => Scaffold(
+            body: ErrorView(
+              message: 'Could not load the phrasebook.\n$error',
+              onRetry: () => ref.invalidate(phrasebookProvider),
+            ),
+          ),
+          data: (snapshot) => _buildShowMode(context, snapshot),
+        );
+  }
+
+  Widget _buildShowMode(BuildContext context, PhrasebookSnapshot snapshot) {
+    final phrase = findPhraseById(phraseId, snapshot.phrases);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -196,7 +215,7 @@ class PhraseShowModeScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 10),
-                                const Row(
+                                Row(
                                   children: [
                                     Icon(
                                       Icons.volume_up_outlined,
@@ -209,7 +228,7 @@ class PhraseShowModeScreen extends StatelessWidget {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
+                                          const Text(
                                             'Real local-speaker audio',
                                             style: TextStyle(
                                               color: primary,
@@ -217,9 +236,11 @@ class PhraseShowModeScreen extends StatelessWidget {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          SizedBox(height: 3),
+                                          const SizedBox(height: 3),
                                           Text(
-                                            'Recording pending - not yet playable',
+                                            phrase.audioUrl == null
+                                                ? 'Recording pending - not yet playable'
+                                                : 'Recording available',
                                             style: TextStyle(
                                               color: textColor,
                                               fontSize: 9,

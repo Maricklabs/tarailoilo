@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/routes.dart';
+import '../features/language/controllers/phrasebook_provider.dart';
 import '../features/language/data/phrase_catalog.dart';
+import '../features/language/data/phrasebook_repository.dart';
+import '../widgets/state_views.dart';
 
-class PhraseDetailScreen extends StatelessWidget {
+class PhraseDetailScreen extends ConsumerWidget {
   const PhraseDetailScreen({super.key, required this.phraseId});
 
   final String phraseId;
@@ -15,8 +19,23 @@ class PhraseDetailScreen extends StatelessWidget {
   static const Color textColor = Color(0xFF765E70);
 
   @override
-  Widget build(BuildContext context) {
-    final phrase = findPhraseById(phraseId);
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(phrasebookProvider)
+        .when(
+          loading: () => const Scaffold(body: LoadingView()),
+          error: (error, _) => Scaffold(
+            body: ErrorView(
+              message: 'Could not load the phrasebook.\n$error',
+              onRetry: () => ref.invalidate(phrasebookProvider),
+            ),
+          ),
+          data: (snapshot) => _buildPhrasePage(context, snapshot),
+        );
+  }
+
+  Widget _buildPhrasePage(BuildContext context, PhrasebookSnapshot snapshot) {
+    final phrase = findPhraseById(phraseId, snapshot.phrases);
     if (phrase == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Phrasebook')),
@@ -222,11 +241,11 @@ class PhraseDetailScreen extends StatelessWidget {
 
                               const SizedBox(width: 8),
 
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    const Text(
                                       'Real local-speaker audio',
                                       style: TextStyle(
                                         color: primary,
@@ -234,9 +253,11 @@ class PhraseDetailScreen extends StatelessWidget {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    SizedBox(height: 3),
+                                    const SizedBox(height: 3),
                                     Text(
-                                      'Recording pending - not yet playable',
+                                      phrase.audioUrl == null
+                                          ? 'Recording pending - not yet playable'
+                                          : 'Recording available',
                                       style: TextStyle(
                                         color: textColor,
                                         fontSize: 9,

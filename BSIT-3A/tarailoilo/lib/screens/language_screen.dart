@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/routes.dart';
+import '../features/language/controllers/phrasebook_provider.dart';
 import '../features/language/data/phrase_catalog.dart';
+import '../widgets/state_views.dart';
 
-class LanguageScreen extends StatefulWidget {
+class LanguageScreen extends ConsumerStatefulWidget {
   const LanguageScreen({super.key});
 
   @override
-  State<LanguageScreen> createState() => _LanguageScreenState();
+  ConsumerState<LanguageScreen> createState() => _LanguageScreenState();
 }
 
-class _LanguageScreenState extends State<LanguageScreen> {
+class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   final Color primary = const Color(0xFFB04491);
   final Color lightPink = const Color(0xFFF7EDF5);
   final Color borderPink = const Color(0xFFEBD2E6);
@@ -36,19 +39,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final search = searchController.text.toLowerCase();
-
-    final filteredPhrases = samplePhraseData.where((phrase) {
-      final matchesCategory =
-          selectedCategory == 'All' ||
-          phrase.category == selectedCategory.toUpperCase();
-
-      final matchesSearch =
-          phrase.local.toLowerCase().contains(search) ||
-          phrase.english.toLowerCase().contains(search);
-
-      return matchesCategory && matchesSearch;
-    }).toList();
+    final phrasebook = ref.watch(phrasebookProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -108,112 +99,173 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
             // CONTENT
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(25, 19, 25, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // SEARCH BAR
-                    Container(
-                      height: 54,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: borderPink),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        onChanged: (_) => setState(() {}),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Search phrases or English meaning',
-                          hintStyle: TextStyle(color: textColor, fontSize: 14),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: primary,
-                            size: 25,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                          ),
-                        ),
-                      ),
-                    ),
+              child: phrasebook.when(
+                loading: () => const LoadingView(),
+                error: (error, _) => ErrorView(
+                  message: 'Could not load the phrasebook.\n$error',
+                  onRetry: () => ref.invalidate(phrasebookProvider),
+                ),
+                data: (snapshot) {
+                  final search = searchController.text.toLowerCase();
+                  final hasAudio = snapshot.phrases.any(
+                    (phrase) => phrase.audioUrl != null,
+                  );
+                  final filteredPhrases =
+                      snapshot.phrases.where((phrase) {
+                        final matchesCategory =
+                            selectedCategory == 'All' ||
+                            phrase.category.toUpperCase() ==
+                                selectedCategory.toUpperCase();
+                        final matchesSearch =
+                            phrase.local.toLowerCase().contains(search) ||
+                            phrase.english.toLowerCase().contains(search) ||
+                            (phrase.filipinoMeaning?.toLowerCase().contains(
+                                  search,
+                                ) ??
+                                false);
+                        return matchesCategory && matchesSearch;
+                      }).toList()..sort((a, b) {
+                        if (a.isEmergency == b.isEmergency) return 0;
+                        return a.isEmergency ? -1 : 1;
+                      });
 
-                    const SizedBox(height: 17),
-
-                    // CATEGORY FILTERS
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 9,
-                      children: [...categories.map(categoryChip)],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // OFFLINE STATUS
-                    Row(
-                      children: [
-                        Icon(Icons.download, color: primary, size: 23),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Text pack saved offline • audio pack pending',
-                            style: TextStyle(color: textColor, fontSize: 13),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 17),
-
-                    // PHRASE CARDS
-                    ...filteredPhrases.map((phrase) => phraseCard(phrase)),
-
-                    const SizedBox(height: 2),
-
-                    // INFORMATION CARD
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: lightPink,
-                        border: Border.all(color: borderPink),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      ref.invalidate(phrasebookProvider);
+                      await ref.read(phrasebookProvider.future);
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(25, 19, 25, 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Made by people, not generated voices',
-                            style: TextStyle(
-                              color: primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                          // SEARCH BAR
+                          Container(
+                            height: 54,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: borderPink),
+                            ),
+                            child: TextField(
+                              controller: searchController,
+                              onChanged: (_) => setState(() {}),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Search in Hiligaynon, English, or Filipino',
+                                hintStyle: TextStyle(
+                                  color: textColor,
+                                  fontSize: 14,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: primary,
+                                  size: 25,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 7),
-                          Text(
-                            'Manually authored phrase & pronunciation drafts, awaiting native-speaker review. Real local-speaker recordings: pending.',
-                            style: TextStyle(
-                              color: textColor,
-                              fontSize: 13,
-                              height: 1.5,
-                            ),
+
+                          const SizedBox(height: 17),
+
+                          // CATEGORY FILTERS
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 9,
+                            children: [...categories.map(categoryChip)],
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                            'Download recordings when available',
-                            style: TextStyle(
-                              color: primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+
+                          const SizedBox(height: 20),
+
+                          // OFFLINE STATUS
+                          Row(
+                            children: [
+                              Icon(Icons.download, color: primary, size: 23),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  [
+                                    snapshot.sourceLabel,
+                                    if (snapshot.notice != null)
+                                      snapshot.notice!,
+                                  ].join(' • '),
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 17),
+
+                          // PHRASE CARDS
+                          if (filteredPhrases.isEmpty)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: Text('No phrases match your search.'),
+                              ),
+                            )
+                          else
+                            ...filteredPhrases.map(
+                              (phrase) => phraseCard(phrase),
+                            ),
+
+                          const SizedBox(height: 2),
+
+                          // INFORMATION CARD
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: lightPink,
+                              border: Border.all(color: borderPink),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Made by people, not generated voices',
+                                  style: TextStyle(
+                                    color: primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 7),
+                                Text(
+                                  hasAudio
+                                      ? 'Phrase content is managed in Contentful. Local-speaker recordings are available for some phrases.'
+                                      : 'Phrase content is managed in Contentful. Local-speaker recordings are pending.',
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontSize: 13,
+                                    height: 1.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  'Download recordings when available',
+                                  style: TextStyle(
+                                    color: primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
@@ -299,10 +351,18 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
           Row(
             children: [
-              Icon(Icons.play_circle_outline, color: primary, size: 23),
+              Icon(
+                phrase.audioUrl == null
+                    ? Icons.volume_off_outlined
+                    : Icons.volume_up_outlined,
+                color: primary,
+                size: 23,
+              ),
               const SizedBox(width: 7),
               Text(
-                'Local speaker',
+                phrase.audioUrl == null
+                    ? 'Recording pending'
+                    : 'Local-speaker recording',
                 style: TextStyle(color: textColor, fontSize: 12),
               ),
               const Spacer(),
