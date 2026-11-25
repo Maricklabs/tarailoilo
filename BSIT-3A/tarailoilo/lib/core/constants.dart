@@ -5,6 +5,9 @@ abstract final class AppConstants {
   /// Timeout for every AI call (chat, scan, event extraction).
   static const aiTimeout = Duration(seconds: 15);
 
+  /// Timeout for ordinary Supabase reads.
+  static const networkTimeout = Duration(seconds: 15);
+
   /// Allowed geofence radius range for landmarks, in meters.
   static const geofenceMinRadiusM = 50;
   static const geofenceMaxRadiusM = 100;
