@@ -1,0 +1,14 @@
+[
+  {
+    "id": "faq-offline",
+    "question": "Does the app work without internet?",
+    "answer": "Yes. Landmarks, dishes, phrases, the map and saved events are read from the offline pack. Chat, Scan and reviews need internet.",
+    "keywords": ["offline", "internet", "data", "no signal"]
+  },
+  {
+    "id": "faq-scan",
+    "question": "How do I scan a dish or landmark?",
+    "answer": "Tap Scan on Home, Dining or Map, choose Dish or Landmark, and take a photo. Always confirm the AI suggestion before opening the entry.",
+    "keywords": ["scan", "camera", "photo", "identify"]
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "TaraIlo (with .env)",
+      "request": "launch",
+      "type": "dart",
+      "args": ["--dart-define-from-file=.env"]
+    },
+    {
+      "name": "TaraIlo (offline, no Supabase)",
+      "request": "launch",
+      "type": "dart"
+    }
+  ]
+}
