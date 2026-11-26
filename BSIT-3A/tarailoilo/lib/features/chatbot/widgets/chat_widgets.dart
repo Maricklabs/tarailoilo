@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:iloilo_tourist_app/widgets/icons.dart';
 import 'package:iloilo_tourist_app/data/chat_content.dart';
@@ -18,7 +19,11 @@ const Color _kGlassText = Color(0xFF7D2F66);
 /// Light pink header: back + branding + account on one row, then heading and subtitle.
 /// The back and account buttons are passed in so this file stays independent of the dashboard.
 class ChatHeader extends StatelessWidget {
-  const ChatHeader({super.key, required this.backButton, required this.accountButton});
+  const ChatHeader({
+    super.key,
+    required this.backButton,
+    required this.accountButton,
+  });
   final Widget backButton;
   final Widget accountButton;
 
@@ -31,7 +36,9 @@ class ChatHeader extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16, 12 + mq.padding.top, 16, 16),
       decoration: BoxDecoration(
         color: _kHeaderPink,
-        border: Border(bottom: BorderSide(color: rgba(205, 123, 180, .35), width: 1)),
+        border: Border(
+          bottom: BorderSide(color: rgba(205, 123, 180, .35), width: 1),
+        ),
       ),
       child: Center(
         child: ConstrainedBox(
@@ -45,7 +52,12 @@ class ChatHeader extends StatelessWidget {
                   const SizedBox(width: 12),
                   Text(
                     'TARA ILOILO',
-                    style: jost(size: 11.2, weight: FontWeight.w700, letterSpacing: 0.67, color: AppColors.deep),
+                    style: jost(
+                      size: 11.2,
+                      weight: FontWeight.w700,
+                      letterSpacing: 0.67,
+                      color: AppColors.deep,
+                    ),
                   ),
                   const Spacer(),
                   accountButton,
@@ -54,12 +66,22 @@ class ChatHeader extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 kChatHeading,
-                style: jost(size: headingSize, weight: FontWeight.w700, height: 1.1, color: AppColors.deep),
+                style: jost(
+                  size: headingSize,
+                  weight: FontWeight.w700,
+                  height: 1.1,
+                  color: AppColors.deep,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 kChatSubtitle,
-                style: jost(size: 14.4, weight: FontWeight.w600, letterSpacing: 0.3, color: AppColors.pur),
+                style: jost(
+                  size: 14.4,
+                  weight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                  color: AppColors.pur,
+                ),
               ),
             ],
           ),
@@ -104,7 +126,15 @@ class _Label extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: jost(size: 11.2, weight: FontWeight.w700, letterSpacing: 0.9, color: color));
+    return Text(
+      text,
+      style: jost(
+        size: 11.2,
+        weight: FontWeight.w700,
+        letterSpacing: 0.9,
+        color: color,
+      ),
+    );
   }
 }
 
@@ -138,9 +168,18 @@ class UserBubble extends StatelessWidget {
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(6),
                 ),
-                boxShadow: [BoxShadow(color: rgba(165, 70, 136, .22), blurRadius: 12, offset: const Offset(0, 4))],
+                boxShadow: [
+                  BoxShadow(
+                    color: rgba(165, 70, 136, .22),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: Text(text, style: jost(size: 15.2, height: 1.45, color: Colors.white)),
+              child: Text(
+                text,
+                style: jost(size: 15.2, height: 1.45, color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -167,7 +206,9 @@ class _TataShell extends StatelessWidget {
           const SizedBox(width: 10),
           Flexible(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: math.max(120.0, maxWidth - 48)),
+              constraints: BoxConstraints(
+                maxWidth: math.max(120.0, maxWidth - 48),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -177,7 +218,10 @@ class _TataShell extends StatelessWidget {
                     child: _Label('TATA', AppColors.deep),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: _kHeaderPink,
                       borderRadius: const BorderRadius.only(
@@ -186,8 +230,17 @@ class _TataShell extends StatelessWidget {
                         bottomLeft: Radius.circular(20),
                         bottomRight: Radius.circular(20),
                       ),
-                      border: Border.all(color: rgba(205, 123, 180, .35), width: 1),
-                      boxShadow: [BoxShadow(color: rgba(165, 70, 136, .10), blurRadius: 12, offset: const Offset(0, 4))],
+                      border: Border.all(
+                        color: rgba(205, 123, 180, .35),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: rgba(165, 70, 136, .10),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: child,
                   ),
@@ -210,7 +263,10 @@ class TataBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return _TataShell(
       maxWidth: maxWidth,
-      child: Text(text, style: jost(size: 15.2, height: 1.5, color: AppColors.ink)),
+      child: Text(
+        text,
+        style: jost(size: 15.2, height: 1.5, color: AppColors.ink),
+      ),
     );
   }
 }
@@ -224,9 +280,12 @@ class TypingIndicator extends StatefulWidget {
   State<TypingIndicator> createState() => _TypingIndicatorState();
 }
 
-class _TypingIndicatorState extends State<TypingIndicator> with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
+class _TypingIndicatorState extends State<TypingIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  )..repeat();
 
   @override
   void dispose() {
@@ -270,7 +329,10 @@ class _TypingIndicatorState extends State<TypingIndicator> with SingleTickerProv
         child: Container(
           width: 8,
           height: 8,
-          decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.pur),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.pur,
+          ),
         ),
       ),
     );
@@ -292,7 +354,14 @@ class ChatEmptyState extends StatelessWidget {
           children: [
             const TataAvatar(size: 72),
             const SizedBox(height: 14),
-            Text(kChatEmptyTitle, style: jost(size: 22, weight: FontWeight.w700, color: AppColors.deep)),
+            Text(
+              kChatEmptyTitle,
+              style: jost(
+                size: 22,
+                weight: FontWeight.w700,
+                color: AppColors.deep,
+              ),
+            ),
             const SizedBox(height: 6),
             Text(
               kChatEmptyBody,
@@ -326,32 +395,37 @@ class ConversationView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (messages.isEmpty && !isTyping) return const ChatEmptyState();
 
-    return LayoutBuilder(builder: (context, c) {
-      final content = math.min(c.maxWidth, kChatMaxWidth) - 32;
-      final bubbleMax = math.min(content * 0.86, 520.0);
-      return SingleChildScrollView(
-        controller: scroll,
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: kChatMaxWidth - 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < messages.length; i++) ...[
-                  if (i > 0) const SizedBox(height: 14),
-                  _item(messages[i], i, bubbleMax),
+    return LayoutBuilder(
+      builder: (context, c) {
+        final content = math.min(c.maxWidth, kChatMaxWidth) - 32;
+        final bubbleMax = math.min(content * 0.86, 520.0);
+        return SingleChildScrollView(
+          controller: scroll,
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: kChatMaxWidth - 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < messages.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 14),
+                    _item(messages[i], i, bubbleMax),
+                  ],
+                  if (isTyping) ...[
+                    if (messages.isNotEmpty) const SizedBox(height: 14),
+                    _enter(
+                      const ValueKey('typing'),
+                      TypingIndicator(maxWidth: bubbleMax),
+                    ),
+                  ],
                 ],
-                if (isTyping) ...[
-                  if (messages.isNotEmpty) const SizedBox(height: 14),
-                  _enter(const ValueKey('typing'), TypingIndicator(maxWidth: bubbleMax)),
-                ],
-              ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _item(ChatMessage m, int i, double maxWidth) {
@@ -359,16 +433,18 @@ class ConversationView extends StatelessWidget {
         ? UserBubble(text: m.text, maxWidth: maxWidth)
         : TataBubble(text: m.text, maxWidth: maxWidth);
     final key = ValueKey(m.id);
-    return i >= animateFromIndex ? _enter(key, bubble) : KeyedSubtree(key: key, child: bubble);
+    return i >= animateFromIndex
+        ? _enter(key, bubble)
+        : KeyedSubtree(key: key, child: bubble);
   }
 
   Widget _enter(Key key, Widget child) => Entrance(
-        key: key,
-        duration: const Duration(milliseconds: 380),
-        curve: kEase,
-        from: const Offset(0, 14),
-        child: child,
-      );
+    key: key,
+    duration: const Duration(milliseconds: 380),
+    curve: kEase,
+    from: const Offset(0, 14),
+    child: child,
+  );
 }
 
 /* ---------------------------------------------------- Suggested questions */
@@ -376,7 +452,12 @@ class ConversationView extends StatelessWidget {
 /// White -> glass purple on touch, white text and arrow, then runs [onPressed].
 /// Same press-then-open rhythm as the Landmark and Food cards.
 class SuggestionButton extends StatefulWidget {
-  const SuggestionButton({super.key, required this.label, required this.onPressed, this.enabled = true});
+  const SuggestionButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.enabled = true,
+  });
   final String label;
   final VoidCallback onPressed;
   final bool enabled;
@@ -446,7 +527,12 @@ class _SuggestionButtonState extends State<SuggestionButton> {
                 Expanded(
                   child: AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 300),
-                    style: jost(size: 15.2, weight: FontWeight.w600, height: 1.3, color: textColor),
+                    style: jost(
+                      size: 15.2,
+                      weight: FontWeight.w600,
+                      height: 1.3,
+                      color: textColor,
+                    ),
                     child: Text(widget.label),
                   ),
                 ),
@@ -454,7 +540,8 @@ class _SuggestionButtonState extends State<SuggestionButton> {
                 TweenAnimationBuilder<Color?>(
                   tween: ColorTween(end: textColor),
                   duration: const Duration(milliseconds: 300),
-                  builder: (_, c, __) => Icn(Ic.arrow, size: 20, color: c ?? AppColors.pur),
+                  builder: (_, c, __) =>
+                      Icn(Ic.arrow, size: 20, color: c ?? AppColors.pur),
                 ),
               ],
             ),
@@ -475,8 +562,8 @@ class SuggestedQuestions extends StatelessWidget {
     this.heading = kSuggestionsHeading,
   });
 
-  final List<SuggestedQuestion> questions;
-  final ValueChanged<SuggestedQuestion> onSelected;
+  final List<String> questions;
+  final ValueChanged<String> onSelected;
   final bool enabled;
   final String heading;
 
@@ -486,12 +573,19 @@ class SuggestedQuestions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(heading, style: jost(size: 16.5, weight: FontWeight.w600, color: AppColors.pur)),
+        Text(
+          heading,
+          style: jost(
+            size: 16.5,
+            weight: FontWeight.w600,
+            color: AppColors.pur,
+          ),
+        ),
         const SizedBox(height: 10),
         for (var i = 0; i < questions.length; i++) ...[
           if (i > 0) const SizedBox(height: 10),
           SuggestionButton(
-            label: questions[i].text,
+            label: questions[i],
             enabled: enabled,
             onPressed: () => onSelected(questions[i]),
           ),
@@ -553,11 +647,24 @@ class _SendButtonState extends State<SendButton> {
                           ? [AppColors.pur, AppColors.pur]
                           : [rgba(165, 70, 136, .62), rgba(165, 70, 136, .42)],
                     ),
-                    border: Border.all(color: pressed ? AppColors.pur : rgba(255, 255, 255, .7), width: 1),
-                    boxShadow: [BoxShadow(color: rgba(165, 70, 136, .35), blurRadius: 14, offset: const Offset(0, 5))],
+                    border: Border.all(
+                      color: pressed ? AppColors.pur : rgba(255, 255, 255, .7),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: rgba(165, 70, 136, .35),
+                        blurRadius: 14,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: Center(
-                    child: Icn(Ic.send, size: 22, color: pressed ? Colors.white : _kGlassText),
+                    child: Icn(
+                      Ic.send,
+                      size: 22,
+                      color: pressed ? Colors.white : _kGlassText,
+                    ),
                   ),
                 ),
               ),
@@ -573,7 +680,12 @@ class _SendButtonState extends State<SendButton> {
 /// Enter submits (mobile "send" key and hardware keyboards); empty messages are ignored.
 /// [busy] only blocks sending, so the user can keep typing while TATA answers.
 class ChatInput extends StatefulWidget {
-  const ChatInput({super.key, required this.onSend, required this.focusNode, this.busy = false});
+  const ChatInput({
+    super.key,
+    required this.onSend,
+    required this.focusNode,
+    this.busy = false,
+  });
   final ValueChanged<String> onSend;
   final FocusNode focusNode;
   final bool busy;
@@ -596,7 +708,8 @@ class _ChatInputState extends State<ChatInput> {
     if (text.isEmpty || widget.busy) return;
     widget.onSend(text);
     _ctl.clear();
-    widget.focusNode.requestFocus(); // keep the keyboard up for the next message
+    widget.focusNode
+        .requestFocus(); // keep the keyboard up for the next message
   }
 
   @override
@@ -607,8 +720,16 @@ class _ChatInputState extends State<ChatInput> {
       padding: EdgeInsets.fromLTRB(16, 10, 16, 10 + bottom),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: rgba(205, 123, 180, .35), width: 1)),
-        boxShadow: [BoxShadow(color: rgba(165, 70, 136, .08), blurRadius: 18, offset: const Offset(0, -6))],
+        border: Border(
+          top: BorderSide(color: rgba(205, 123, 180, .35), width: 1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: rgba(165, 70, 136, .08),
+            blurRadius: 18,
+            offset: const Offset(0, -6),
+          ),
+        ],
       ),
       child: Center(
         child: ConstrainedBox(
@@ -635,14 +756,23 @@ class _ChatInputState extends State<ChatInput> {
                     filled: true,
                     fillColor: Colors.white,
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide(color: rgba(205, 123, 180, .55), width: 1.5),
+                      borderSide: BorderSide(
+                        color: rgba(205, 123, 180, .55),
+                        width: 1.5,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
-                      borderSide: const BorderSide(color: AppColors.pur, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: AppColors.pur,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),

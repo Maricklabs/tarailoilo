@@ -55,6 +55,7 @@ dependencies:
   # ANAS (phrasebook audio)
   audioplayers: ^6.8.1
   just_audio: ^0.10.6
+  flutter_dotenv: ^6.0.2
 
 dev_dependencies:
   flutter_test:

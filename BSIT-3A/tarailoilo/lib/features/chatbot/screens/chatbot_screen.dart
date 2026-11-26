@@ -132,9 +132,9 @@ class _AskTataScreenState extends State<AskTataScreen> with WidgetsBindingObserv
                         child: ListenableBuilder(
                           listenable: chat,
                           builder: (context, _) => SuggestedQuestions(
-                            questions: kSuggestedQuestions,
+                            questions: chat.suggestions,
                             enabled: !chat.isTyping,
-                            onSelected: (q) => chat.send(q.text),
+                            onSelected: chat.send,
                           ),
                         ),
                       ),
