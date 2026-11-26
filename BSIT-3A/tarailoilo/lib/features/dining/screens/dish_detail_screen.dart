@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/routes.dart';
 import '../../../widgets/feature_placeholder.dart';
+import '../../../widgets/item_detail_page.dart';
 
 /// S10 Dish Detail.
 ///
@@ -18,16 +18,6 @@ class DishDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Dish Detail')),
-      body: FeaturePlaceholder(
-        code: 'S10',
-        description:
-            'Meaning, origin and history, ingredients. Allergens only as Declared by [restaurant] as of [date], never safe to eat. Restaurants serving the dish on a map.',
-        links: [
-          PlaceholderLink('Sample restaurant (S11)', AppRoutes.restaurant('sample-restaurant')),
-        ],
-      ),
-    );
+    return ItemDetailPage(id: dishId);
   }
 }

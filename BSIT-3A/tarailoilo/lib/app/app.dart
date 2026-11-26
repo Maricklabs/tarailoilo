@@ -22,10 +22,13 @@ class TaraIloApp extends ConsumerWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
+      themeMode: ThemeMode.light,
       darkTheme: AppTheme.dark(),
       routerConfig: router,
-      builder: (context, child) =>
-          ConnectivityBanner(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => Material(
+      color: Colors.white,
+      child: ConnectivityBanner(child: child ?? const SizedBox.shrink()),
+    ),
     );
   }
 }

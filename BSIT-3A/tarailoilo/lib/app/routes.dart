@@ -1,3 +1,4 @@
+import '../data/content.dart';
 /// Every route path in the app, in one place.
 ///
 /// Always navigate with these constants/helpers (for example
@@ -48,4 +49,17 @@ abstract final class AppRoutes {
   static const adminEvents = '/admin/events'; // A3
   static const adminRestaurants = '/admin/restaurants'; // A4
   static const adminUsers = '/admin/users'; // A5
+
+  static const loginEmail = '/login/email';
+  static const register   = '/login/register';
+  static const otp        = '/login/otp';
+  static const info       = '/login/info';
+  static const guest      = '/login/guest';
+  static const terms      = '/terms';
+
+  static String forItem(ContentItem it) => switch (it.type) {
+    ContentType.landmark => landmark(it.id),
+    ContentType.food     => dish(it.id),
+    ContentType.event    => event(it.id),
+  };
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/routes.dart';
 import '../../../widgets/feature_placeholder.dart';
+import '../../../widgets/item_detail_page.dart';
 
 /// S15 Landmark.
 ///
@@ -18,16 +18,6 @@ class LandmarkDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Landmark')),
-      body: FeaturePlaceholder(
-        code: 'S15',
-        description:
-            'Description, history, photos, hours, entry fee, favorite, save for offline, and related places.',
-        links: [
-          PlaceholderLink('Related places (S5)', '${AppRoutes.recommendations}?from=$landmarkId'),
-        ],
-      ),
-    );
+    return ItemDetailPage(id: landmarkId);
   }
 }

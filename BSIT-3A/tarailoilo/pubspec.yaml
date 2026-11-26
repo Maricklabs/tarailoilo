@@ -39,6 +39,10 @@ dependencies:
   supabase_flutter: ^2.18.3
   connectivity_plus: ^7.3.2
   shared_preferences: ^2.5.6
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
+  image_picker: ^1.1.2
+  visibility_detector: ^0.4.0+2
 
 dev_dependencies:
   flutter_test:
@@ -64,8 +68,13 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/avatars/
+    - assets/contentImg/foods/
+    - assets/contentImg/landmarks/
+    - assets/contentImg/events/
     - assets/seed/
     - assets/faq/
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

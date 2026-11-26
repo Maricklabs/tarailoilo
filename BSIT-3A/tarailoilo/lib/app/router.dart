@@ -7,8 +7,8 @@ import '../features/admin/screens/admin_dashboard_screen.dart';
 import '../features/admin/screens/admin_events_screen.dart';
 import '../features/admin/screens/admin_restaurants_screen.dart';
 import '../features/admin/screens/admin_users_screen.dart';
-import '../features/auth/screens/forgot_password_screen.dart';
-import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/auth_screens.dart';
+import '../features/auth/screens/terms_screen.dart';
 import '../features/chatbot/screens/chatbot_screen.dart';
 import '../features/dining/screens/dining_screen.dart';
 import '../features/dining/screens/dish_detail_screen.dart';
@@ -25,8 +25,6 @@ import '../features/map/screens/explore_map_screen.dart';
 import '../features/map/screens/landmark_detail_screen.dart';
 import '../features/map/screens/places_passed_screen.dart';
 import '../features/map/screens/route_detail_screen.dart';
-import '../features/onboarding/screens/onboarding_screen.dart';
-import '../features/onboarding/screens/splash_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/scan/screens/scan_camera_screen.dart';
 import '../features/scan/screens/scan_result_screen.dart';
@@ -57,23 +55,50 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) => _redirect(ref.read(sessionProvider), state),
     routes: [
       // ---------------- Entry flow ----------------
-      GoRoute(
-        path: AppRoutes.splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.onboarding,
-        builder: (context, state) => const OnboardingScreen(),
-      ),
+    GoRoute(
+    path: AppRoutes.splash,
+    builder: (context, state) => LoadingScreen(
+      onDone: () => ref.read(sessionProvider.notifier).finishSplash(),
+    ),
+  ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => WelcomeScreen(
+          onLogin:  () => context.push(AppRoutes.loginEmail),
+          onGuest:  () => context.push(AppRoutes.guest),
+          onSignIn: () => context.push(AppRoutes.register),
+        ),
         routes: [
-          GoRoute(
-            path: 'forgot-password',
-            builder: (context, state) => const ForgotPasswordScreen(),
-          ),
+          GoRoute(path: 'email', builder: (context, state) => LoginScreen(
+            onBack: () => context.pop(),
+            onOpenTerms: () => context.push(AppRoutes.terms),
+            onDone: () => ref.read(sessionProvider.notifier).signInStub(),
+          )),
+          GoRoute(path: 'register', builder: (context, state) => SignInScreen(
+            onBack: () => context.pop(),
+            onOpenTerms: () => context.push(AppRoutes.terms),
+            onNext: (email) => context.push(AppRoutes.otp, extra: email),
+          )),
+          GoRoute(path: 'otp', builder: (context, state) => OtpScreen(
+            email: state.extra as String,
+            onVerified: () => context.push(AppRoutes.info),
+          )),
+          GoRoute(path: 'info', builder: (context, state) => InfoScreen(
+            onBack: () => context.go(AppRoutes.register),
+            onOpenTerms: () => context.push(AppRoutes.terms),
+            onComplete: () => ref.read(sessionProvider.notifier).signInStub(),
+          )),
+          GoRoute(path: 'guest', builder: (context, state) => GuestAvatarScreen(
+            onBack: () => context.pop(),
+            onOpenTerms: () => context.push(AppRoutes.terms),
+            onComplete: () => ref.read(sessionProvider.notifier).continueAsGuest(),
+          )),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.terms,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => TermsScreen(onClose: () => context.pop()),
       ),
 
       // ---------------- Bottom navigation (5 tabs) ----------------
@@ -255,22 +280,19 @@ final routerProvider = Provider<GoRouter>((ref) {
 String? _redirect(AppSession session, GoRouterState state) {
   final path = state.matchedLocation;
   final atSplash = path == AppRoutes.splash;
-  final atOnboarding = path == AppRoutes.onboarding;
   final atLogin = path.startsWith(AppRoutes.login);
+  final atTerms = path == AppRoutes.terms;
 
-  // S1 must finish its sync check first.
+  // 1. Always start with your logo screen.
   if (!session.splashDone) return atSplash ? null : AppRoutes.splash;
 
-  // S2 only on the first run.
-  if (!session.onboardingDone) return atOnboarding ? null : AppRoutes.onboarding;
+  // 2. Then Log in / Guest / Sign in until the user gets in.
+  if (!session.canEnterApp) return (atLogin || atTerms) ? null : AppRoutes.login;
 
-  // S3 until the user signs in or chooses guest mode.
-  if (!session.canEnterApp) return atLogin ? null : AppRoutes.login;
+  // 3. Once inside, never show splash or login again.
+  if (atSplash || atLogin) return AppRoutes.home;
 
-  // Already inside: never show splash/onboarding/login again.
-  if (atSplash || atOnboarding || atLogin) return AppRoutes.home;
-
-  // Admin screens are role-guarded (RLS also protects the data itself).
+  // 4. Admin pages are only for admins.
   if (path.startsWith(AppRoutes.admin) && !session.isAdmin) {
     return AppRoutes.home;
   }
