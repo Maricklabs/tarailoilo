@@ -18,8 +18,8 @@ import '../features/events/screens/events_calendar_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/home/screens/recommendations_screen.dart';
 import '../features/home/screens/saved_screen.dart';
-import '../features/language/screens/phrase_detail_screen.dart';
 import '../features/language/screens/phrase_show_mode_screen.dart';
+import '../features/language/screens/phrase_detail_screen.dart';
 import '../features/language/screens/phrasebook_screen.dart';
 import '../features/map/screens/explore_map_screen.dart';
 import '../features/map/screens/landmark_detail_screen.dart';
@@ -189,8 +189,9 @@ final routerProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'phrase/:id',
-                    builder: (context, state) =>
-                        PhraseDetailScreen(phraseId: state.pathParameters['id']!),
+                    builder: (context, state) => PhraseDetailScreen(
+                      phraseId: state.pathParameters['id']!,
+                    ),
                     routes: [
                       // Full screen, no bottom bar: uses the root navigator.
                       GoRoute(
@@ -287,8 +288,15 @@ String? _redirect(AppSession session, GoRouterState state) {
   // 1. Always start with your logo screen.
   if (!session.splashDone) return atSplash ? null : AppRoutes.splash;
 
+<<<<<<< HEAD
   // 2. Then Log in / Guest / Sign in until the user gets in.
   if (!session.canEnterApp) return (atLogin || atTerms) ? null : AppRoutes.login;
+=======
+  // S2 only on the first run.
+  if (!session.onboardingDone) {
+    return atOnboarding ? null : AppRoutes.onboarding;
+  }
+>>>>>>> origin/ANAS-features
 
   // 3. Once inside, never show splash or login again.
   if (atSplash || atLogin) return AppRoutes.home;

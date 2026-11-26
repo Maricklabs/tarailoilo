@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "TaraIlo (with .env)",
+      "name": "TaraIlo (Contentful)",
       "request": "launch",
       "type": "dart",
-      "args": ["--dart-define-from-file=.env"]
+      "toolArgs": ["--dart-define-from-file=config.json"]
     },
     {
       "name": "TaraIlo (offline, no Supabase)",

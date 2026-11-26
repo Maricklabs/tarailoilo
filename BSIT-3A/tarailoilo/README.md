@@ -159,7 +159,23 @@ This is a build order, not a feature list.
 4. `flutter run --dart-define-from-file=.env` (or pick a config in `.vscode/launch.json`).
 5. `flutter analyze` and `flutter test` must pass before opening a PR.
 
-Never commit `.env`. Gemini, Contentful and Apify keys live only in Supabase secrets.
+Never commit local configuration files containing credentials. The Contentful
+Delivery API token is used directly by the Flutter app and is extractable from
+the app package; use only a read-only Delivery token for published content.
+Never use a Preview or Management API token in the app.
+
+### Phrasebook Contentful sync
+The phrasebook calls the Contentful Delivery API directly. The VS Code
+`TaraIlo (Contentful)` launch config reads the root `config.json` with
+`--dart-define-from-file=config.json`; the equivalent CLI command is
+`flutter run --dart-define-from-file=config.json`. Keep the Phrase content type
+API ID as `phrase` (or provide `CONTENTFUL_PHRASE_CONTENT_TYPE`). The field IDs are
+`phraseId`, `category`, `localPhrase`, `englishMeaning`, `pronunciation`,
+`filipinoMeaning`, `audioRecording`, and `isEmergency`.
+
+Published phrase entries are cached on-device for offline use. Without
+Contentful configuration or a previous successful sync, the phrasebook shows
+a setup error rather than substituting sample content.
 
 ### Navigation map
 Entry: `/splash` (S1) → `/onboarding` (S2, first run) → `/login` (S3) → tabs. The redirect logic lives in `lib/app/router.dart` (`_redirect`).
@@ -190,7 +206,6 @@ lib/
   widgets/               app_shell, connectivity_banner, state_views, feature_placeholder
 assets/                  images, seed json, faq (bundled FAQ for the offline chatbot)
 supabase/                migrations/, functions/
-contentful/              exported content model
 ```
 
 ### How to build your feature
