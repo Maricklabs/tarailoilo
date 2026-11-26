@@ -28,6 +28,7 @@ import '../features/map/screens/route_detail_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/scan/screens/scan_camera_screen.dart';
 import '../features/scan/screens/scan_result_screen.dart';
+import '../features/scan/data/scan_models.dart';
 import '../widgets/app_shell.dart';
 import 'providers.dart';
 import 'routes.dart';
@@ -240,7 +241,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'result',
             parentNavigatorKey: _rootNavigatorKey,
-            builder: (context, state) => const ScanResultScreen(),
+            builder: (context, state) => ScanResultScreen(outcome: state.extra as ScanOutcome?),
           ),
         ],
       ),
