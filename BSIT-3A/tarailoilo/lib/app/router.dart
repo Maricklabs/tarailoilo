@@ -288,15 +288,8 @@ String? _redirect(AppSession session, GoRouterState state) {
   // 1. Always start with your logo screen.
   if (!session.splashDone) return atSplash ? null : AppRoutes.splash;
 
-<<<<<<< HEAD
   // 2. Then Log in / Guest / Sign in until the user gets in.
   if (!session.canEnterApp) return (atLogin || atTerms) ? null : AppRoutes.login;
-=======
-  // S2 only on the first run.
-  if (!session.onboardingDone) {
-    return atOnboarding ? null : AppRoutes.onboarding;
-  }
->>>>>>> origin/ANAS-features
 
   // 3. Once inside, never show splash or login again.
   if (atSplash || atLogin) return AppRoutes.home;

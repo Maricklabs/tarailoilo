@@ -1,18 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-<<<<<<< HEAD
-<<<<<<< HEAD
     <!-- Network access for Supabase sync and online-only features. -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Location for distance to events/landmarks (asked only when needed). -->
-=======
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Camera for the Scan feature. -->
     <uses-permission android:name="android.permission.CAMERA"/>
->>>>>>> origin/LABOS-features
+    <!-- Location for distance, geofencing and scan hints (asked only when needed). -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-=======
-    <uses-permission android:name="android.permission.INTERNET"/>
->>>>>>> origin/ANAS-features
     <application
         android:label="iloilo_tourist_app"
         android:name="${applicationName}"

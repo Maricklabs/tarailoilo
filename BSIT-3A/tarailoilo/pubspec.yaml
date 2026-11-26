@@ -40,28 +40,21 @@ dependencies:
   supabase_flutter: ^2.18.3
   connectivity_plus: ^7.3.2
   shared_preferences: ^2.5.6
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  google_fonts: ^6.2.1
+  # ESCALADA (login/home design)
   flutter_svg: ^2.0.10+1
   image_picker: ^1.1.2
   visibility_detector: ^0.4.0+2
-=======
+  # FERNANDEZ (events); google_fonts 9 does not work with this Flutter version
   table_calendar: ^3.3.0
   google_fonts: 8.0.0
   url_launcher: ^6.3.3
-  geolocator: ^14.0.1
->>>>>>> origin/FERNANDEZ-F-features
-=======
+  # LABOS (dining + camera scan); geolocator is also used by events
   camera: ^0.12.2
   geolocator: ^14.0.1
   flutter_compass: ^0.8.1
->>>>>>> origin/LABOS-features
-=======
+  # ANAS (phrasebook audio)
   audioplayers: ^6.8.1
   just_audio: ^0.10.6
->>>>>>> origin/ANAS-features
 
 dev_dependencies:
   flutter_test:
