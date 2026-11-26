@@ -1,11 +1,13 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/routes.dart';
-import '../../../widgets/state_views.dart';
-import '../controllers/phrasebook_provider.dart';
-import '../data/phrase_catalog.dart';
+import 'package:iloilo_tourist_app/app/routes.dart';
+import 'package:iloilo_tourist_app/features/language/controllers/phrasebook_provider.dart';
+import 'package:iloilo_tourist_app/features/language/data/phrase_catalog.dart';
+import 'package:iloilo_tourist_app/features/language/widgets/phrase_audio_player.dart';
+import 'package:iloilo_tourist_app/widgets/state_views.dart';
 
 class PhrasebookScreen extends ConsumerStatefulWidget {
   const PhrasebookScreen({super.key});
@@ -23,12 +25,15 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
   final TextEditingController searchController = TextEditingController();
 
   String selectedCategory = 'All';
+
   final List<String> categories = [
-    'Food ordering',
+    'Ordering',
     'Allergies',
     'Directions',
     'Bargaining',
     'Emergencies',
+    'Greetings',
+    'Casual',
   ];
 
   @override
@@ -107,15 +112,20 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
                 ),
                 data: (snapshot) {
                   final search = searchController.text.toLowerCase();
+
                   final hasAudio = snapshot.phrases.any(
-                    (phrase) => phrase.audioUrl != null,
+                    (phrase) =>
+                        phrase.audioUrl != null &&
+                        phrase.audioUrl!.trim().isNotEmpty,
                   );
+
                   final filteredPhrases =
                       snapshot.phrases.where((phrase) {
                         final matchesCategory =
                             selectedCategory == 'All' ||
                             phrase.category.toUpperCase() ==
                                 selectedCategory.toUpperCase();
+
                         final matchesSearch =
                             phrase.local.toLowerCase().contains(search) ||
                             phrase.english.toLowerCase().contains(search) ||
@@ -123,11 +133,13 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
                                   search,
                                 ) ??
                                 false);
+
                         return matchesCategory && matchesSearch;
-                      }).toList()..sort((a, b) {
-                        if (a.isEmergency == b.isEmergency) return 0;
-                        return a.isEmergency ? -1 : 1;
-                      });
+                      }).toList()
+                        ..sort((a, b) {
+                          if (a.isEmergency == b.isEmergency) return 0;
+                          return a.isEmergency ? -1 : 1;
+                        });
 
                   return RefreshIndicator(
                     onRefresh: () async {
@@ -152,7 +164,8 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
                               onChanged: (_) => setState(() {}),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: 'Search in Hiligaynon, English, or Filipino',
+                                hintText:
+                                    'Search in Hiligaynon, English, or Filipino',
                                 hintStyle: TextStyle(
                                   color: textColor,
                                   fontSize: 14,
@@ -162,9 +175,8 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
                                   color: primary,
                                   size: 25,
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
+                                contentPadding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                               ),
                             ),
                           ),
@@ -175,7 +187,10 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
                           Wrap(
                             spacing: 8,
                             runSpacing: 9,
-                            children: [...categories.map(categoryChip)],
+                            children: [
+                              categoryChip('All'),
+                              ...categories.map(categoryChip),
+                            ],
                           ),
 
                           const SizedBox(height: 20),
@@ -208,7 +223,9 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 24),
                               child: Center(
-                                child: Text('No phrases match your search.'),
+                                child: Text(
+                                  'No phrases match your search.',
+                                ),
                               ),
                             )
                           else
@@ -251,7 +268,7 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
-                                  'Download recordings when available',
+                                  'Recordings are streamed from Contentful when available.',
                                   style: TextStyle(
                                     color: primary,
                                     fontWeight: FontWeight.bold,
@@ -322,6 +339,7 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 12),
 
           Text(
@@ -347,37 +365,31 @@ class _LanguageScreenState extends ConsumerState<PhrasebookScreen> {
             style: TextStyle(color: textColor, fontSize: 14),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
-          Row(
-            children: [
-              Icon(
-                phrase.audioUrl == null
-                    ? Icons.volume_off_outlined
-                    : Icons.volume_up_outlined,
-                color: primary,
-                size: 23,
+          // AUDIO PLAYER FROM CONTENTFUL
+          PhraseAudioPlayer(
+            key: ValueKey('phrase-audio-${phrase.id}'),
+            audioUrl: phrase.audioUrl,
+          ),
+
+          const SizedBox(height: 8),
+
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => context.push(
+                AppRoutes.phraseShow(phrase.id),
               ),
-              const SizedBox(width: 7),
-              Text(
-                phrase.audioUrl == null
-                    ? 'Recording pending'
-                    : 'Local-speaker recording',
-                style: TextStyle(color: textColor, fontSize: 12),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () => context.push(AppRoutes.phraseShow(phrase.id)),
-                child: Text(
-                  'Show phrase',
-                  style: TextStyle(
-                    color: primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
+              child: Text(
+                'Show phrase',
+                style: TextStyle(
+                  color: primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
               ),
-            ],
+            ),
           ),
         ],
       ),
