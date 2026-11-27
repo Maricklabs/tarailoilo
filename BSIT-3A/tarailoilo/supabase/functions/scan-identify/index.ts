@@ -1,10 +1,10 @@
 // supabase/functions/scan-identify/index.ts
 //
-// Identifies a dish or landmark from a photo with Gemini vision.
+// Identifies a dish or landmark from a photo with Groq vision (OpenAI-compatible API).
 // Request:  { mode: "dish" | "landmark", image: <base64 JPEG>, lat?, lng?, heading? }
 // Response: { guesses: [{ id | null, name, confidence, type }] }   (top 3, best first)
 //
-// Gemini identifies the photo, and `id` is set only when it matches an entry in
+// The model identifies the photo, and `id` is set only when it matches an entry in
 // your database. id = null means "identified, but we have no details for it".
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -15,8 +15,10 @@ const TABLES: Record<string, { table: string; id: string; name: string }> = {
   landmark: { table: "landmarks", id: "id", name: "name" },
 };
 
-const MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-3.6-flash";
-const MAX_IMAGE_CHARS = 8_000_000; // ~6 MB of base64
+// Must be a Groq model with image input. Check console.groq.com/docs/vision for
+// the current ID, and override with the GROQ_MODEL secret instead of editing code.
+const MODEL = Deno.env.get("GROQ_MODEL") ?? "qwen/qwen3.8-27b";
+const MAX_IMAGE_CHARS = 4_000_000; // Groq limits base64 images to ~4 MB
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -43,7 +45,7 @@ Deno.serve(async (req) => {
       return json({ error: "image missing or too large" }, 400);
     }
 
-    const apiKey = Deno.env.get("SCAN_GEMINI_API_KEY");
+    const apiKey = Deno.env.get("GROQ_API_KEY_SCAN");
     if (!apiKey) return json({ error: "server not configured" }, 500);
 
     // Candidate list from the database (runs as the calling user, so RLS applies).
@@ -79,53 +81,40 @@ Deno.serve(async (req) => {
       `If the photo is not a ${mode === "dish" ? "dish" : "landmark"} at all, return an ` +
       `empty guesses array. ${where}\n\nList:\n${list}`;
 
-    const gemini = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: prompt },
-              { inline_data: { mime_type: "image/jpeg", data: image } },
-            ],
-          }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: "OBJECT",
-              properties: {
-                guesses: {
-                  type: "ARRAY",
-                  items: {
-                    type: "OBJECT",
-                    properties: {
-                      id: { type: "STRING" },
-                      name: { type: "STRING" },
-                      confidence: { type: "NUMBER" },
-                    },
-                    required: ["id", "name", "confidence"],
-                  },
-                },
-              },
-              required: ["guesses"],
+    const groq = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: MODEL,
+        temperature: 0.2,
+        response_format: { type: "json_object" },
+        messages: [{
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: prompt +
+                `\n\nReply with JSON only, in exactly this shape: ` +
+                `{"guesses":[{"id":"","name":"","confidence":0.0}]}`,
             },
-          },
-        }),
-      },
-    );
+            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}` } },
+          ],
+        }],
+      }),
+    });
 
-    if (!gemini.ok) {
-      const detail = (await gemini.text()).slice(0, 400);
-      console.error("gemini error", gemini.status, detail);
-      return json({ error: "vision service unavailable", detail: `${gemini.status}: ${detail}` }, 502);
+    if (!groq.ok) {
+      const detail = (await groq.text()).slice(0, 400);
+      console.error("groq error", groq.status, detail);
+      return json({ error: "vision service unavailable", detail: `${groq.status}: ${detail}` }, 502);
     }
 
-    const result = await gemini.json();
-    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
-    const parsed = JSON.parse(text);
+    const result = await groq.json();
+    let text: string = result?.choices?.[0]?.message?.content ?? "{}";
+    text = text.replace(/<think>[\s\S]*?<\/think>/g, ""); // some models add reasoning
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+    const parsed = start >= 0 && end > start ? JSON.parse(text.slice(start, end + 1)) : {};
 
     const guesses = (parsed.guesses ?? [])
       .map((g: { id: string; name: string; confidence: number }) => {
