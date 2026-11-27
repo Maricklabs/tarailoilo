@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../data/dining_models.dart';
 import '../data/dining_repository.dart';
+import '../data/dining_repository_factory.dart';
 import '../widgets/dining_widgets.dart';
 
 enum _DiningFilter { all, localFood, restaurants }
@@ -15,18 +16,17 @@ enum _DiningFilter { all, localFood, restaurants }
 /// Search + filter chips, "Taste Iloilo" dishes and "Places to try"
 /// restaurants. The camera button opens the scanner (S12) in dish mode.
 class DiningScreen extends StatefulWidget {
-  const DiningScreen({
-    super.key,
-    this.repository = const SampleDiningRepository(),
-  });
+  const DiningScreen({super.key, this.repository});
 
-  final DiningRepository repository;
+  /// Override in tests. Defaults to [resolveDiningRepository].
+  final DiningRepository? repository;
 
   @override
   State<DiningScreen> createState() => _DiningScreenState();
 }
 
 class _DiningScreenState extends State<DiningScreen> {
+  late final DiningRepository _repo = widget.repository ?? resolveDiningRepository();
   final _controller = TextEditingController();
   Timer? _debounce;
   _DiningFilter _filter = _DiningFilter.all;
@@ -56,7 +56,7 @@ class _DiningScreenState extends State<DiningScreen> {
       _error = null;
     });
     try {
-      final r = await widget.repository.search(query);
+      final r = await _repo.search(query);
       if (!mounted || id != _requestId) return;
       setState(() {
         _result = r;

@@ -20,8 +20,6 @@ abstract class DiningRepository {
 class SampleDiningRepository implements DiningRepository {
   const SampleDiningRepository();
 
-  static final _declared = DateTime(2026, 10, 1);
-
   static final List<Dish> _dishes = [
     Dish(
       id: 'la-paz-batchoy',
@@ -39,14 +37,7 @@ class SampleDiningRepository implements DiningRepository {
           'Though another account traces the origin of Batchoy from Chinese '
           'history, this is yet to be proven.',
       ingredients: ['Noodles', 'Pork/beef', 'Innards', 'Chicken'],
-      declarations: [
-        AllergenDeclaration(
-          restaurantId: 'teds-batchoy',
-          restaurantName: "Ted's Batchoy",
-          declaredOn: _declared,
-          allergens: ['Wheat', 'Shellfish'],
-        ),
-      ],
+      declarations: [],
       restaurantIds: ['teds-batchoy', 'robertos'],
       isIloiloFavorite: true,
     ),

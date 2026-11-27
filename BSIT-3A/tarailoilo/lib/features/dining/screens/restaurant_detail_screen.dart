@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../data/dining_models.dart';
 import '../data/dining_repository.dart';
+import '../data/dining_repository_factory.dart';
 import '../widgets/dining_widgets.dart';
 
 /// S11 Restaurant.
@@ -14,12 +15,12 @@ class RestaurantDetailScreen extends StatefulWidget {
   const RestaurantDetailScreen({
     super.key,
     required this.restaurantId,
-    this.repository = const SampleDiningRepository(),
+    this.repository,
   });
 
   /// ID taken from the route path.
   final String restaurantId;
-  final DiningRepository repository;
+  final DiningRepository? repository;
 
   @override
   State<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
@@ -36,7 +37,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   late Future<_RestaurantBundle> _future = _load();
 
   Future<_RestaurantBundle> _load() async {
-    final repo = widget.repository;
+    final repo = widget.repository ?? resolveDiningRepository();
     final r = await repo.restaurantById(widget.restaurantId);
     if (r == null) return const _RestaurantBundle(null, []);
     return _RestaurantBundle(r, await repo.dishesServedBy(r.id));

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../data/dining_models.dart';
 import '../data/dining_repository.dart';
+import '../data/dining_repository_factory.dart';
 import '../widgets/dining_widgets.dart';
 
 /// S10 Dish Detail.
@@ -15,12 +16,12 @@ class DishDetailScreen extends StatefulWidget {
   const DishDetailScreen({
     super.key,
     required this.dishId,
-    this.repository = const SampleDiningRepository(),
+    this.repository,
   });
 
   /// ID taken from the route path.
   final String dishId;
-  final DiningRepository repository;
+  final DiningRepository? repository;
 
   @override
   State<DishDetailScreen> createState() => _DishDetailScreenState();
@@ -31,7 +32,7 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
   bool _saved = false; // TODO: wire to the favourites store.
 
   Future<_DishBundle> _load() async {
-    final repo = widget.repository;
+    final repo = widget.repository ?? resolveDiningRepository();
     final dish = await repo.dishById(widget.dishId);
     if (dish == null) return const _DishBundle.missing();
     final results = await Future.wait([
